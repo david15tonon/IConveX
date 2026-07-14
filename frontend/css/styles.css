@@ -1,0 +1,91 @@
+/* Small additions on top of the Tailwind CDN utility classes used in
+   index.html — status chips, dropzone drag state, and an indeterminate
+   progress animation for the "converting" phase (we don't get real
+   percentage progress back from the server for that phase, only for the
+   upload itself). Colors are pulled straight from DESIGN.md. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: 'Geist', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chip-pending {
+  background: #dfe9f5;
+  color: #434655;
+}
+
+.chip-uploading,
+.chip-converting {
+  background: #dbe1ff;
+  color: #003ea8;
+}
+
+.chip-complete {
+  background: #c1ffc5;
+  color: #005321;
+}
+
+.chip-error {
+  background: #ffdad6;
+  color: #93000a;
+}
+
+/* Dropzone drag-over state */
+#dropzone.dropzone-active {
+  border-color: #004ac6;
+  background-color: #ecf4ff;
+}
+
+#dropzone.dropzone-error {
+  border-color: #ba1a1a;
+  background-color: #ffdad6;
+}
+
+/* Indeterminate progress animation, used while the server is converting
+   (as opposed to the real 0-100% shown while the file is uploading) */
+.progress-indeterminate {
+  width: 100% !important;
+  background: linear-gradient(90deg, #dbe1ff 0%, #004ac6 50%, #dbe1ff 100%);
+  background-size: 200% 100%;
+  animation: iconvex-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes iconvex-indeterminate {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Pipeline node active / complete / error states */
+.pipeline-node.is-active {
+  border-color: #004ac6 !important;
+}
+
+.pipeline-node.is-complete {
+  border-color: #006229 !important;
+  background-color: #c1ffc5 !important;
+}
+
+.pipeline-node.is-error {
+  border-color: #ba1a1a !important;
+  background-color: #ffdad6 !important;
+}
+
+/* Keyboard accessibility: visible focus ring, since the design system
+   avoids glow/shadow effects elsewhere but a focus indicator is required
+   for accessibility */
+a:focus-visible,
+button:focus-visible,
+label:focus-visible,
+input:focus-visible {
+  outline: 2px solid #004ac6;
+  outline-offset: 2px;
+}
