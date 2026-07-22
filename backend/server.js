@@ -11,7 +11,7 @@ import { convertIfcToXkt } from './src/convert.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT );
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 200);
 const JOB_TTL_MINUTES = Number(process.env.JOB_TTL_MINUTES || 60);
 const MAX_CONCURRENT_CONVERSIONS = Number(process.env.MAX_CONCURRENT_CONVERSIONS || 2);
