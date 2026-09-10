@@ -1,0 +1,46 @@
+# Render blueprint for the IConveX backend.
+# Spec: https://render.com/docs/blueprint-spec
+#
+# The backend is a long-running Express server with an in-memory job queue, so
+# it needs a persistent process — it cannot run on Vercel's serverless
+# functions. Vercel hosts frontend/ only (see frontend/vercel.json).
+#
+# To deploy: Render dashboard > New > Blueprint > point at this repo.
+
+services:
+  - type: web
+    name: iconvex-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+
+      # Origins allowed to call the API. No trailing slashes — these are
+      # compared against the browser's Origin header, which never has one.
+      - key: CORS_ORIGIN
+        value: https://iconvex-convex.vercel.app
+
+      # 200 MB IFC files will exhaust the 512 MB free instance during
+      # conversion. Lower this, or move to a paid instance, before relying on it.
+      - key: MAX_UPLOAD_MB
+        value: "200"
+
+      - key: JOB_TTL_MINUTES
+        value: "60"
+      - key: MAX_CONCURRENT_CONVERSIONS
+        value: "2"
+
+    # Optional persistent storage. Not required: the job queue is in-memory and
+    # lost on restart regardless, and finished files are pruned after
+    # JOB_TTL_MINUTES. Requires a paid instance type. If you enable this, also
+    # add an env var DATA_DIR=/var/data so the server actually writes there.
+    #
+    # disk:
+    #   name: iconvex-data
+    #   mountPath: /var/data
+    #   sizeGB: 10
