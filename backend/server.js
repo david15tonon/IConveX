@@ -15,8 +15,13 @@ const PORT = Number(process.env.PORT) || 3000;
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 200);
 const JOB_TTL_MINUTES = Number(process.env.JOB_TTL_MINUTES || 60);
 const MAX_CONCURRENT_CONVERSIONS = Number(process.env.MAX_CONCURRENT_CONVERSIONS || 2);
+// Origins allowed to call the API. Trailing slashes are stripped: the browser's
+// Origin header never has one, so a stray slash in configuration would silently
+// reject every request with no server-side error to show for it.
+const normalizeOrigin = (value) => value.trim().replace(/\/+$/, '');
+
 const CORS_ORIGIN = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
+  ? process.env.CORS_ORIGIN.split(',').map(normalizeOrigin).filter(Boolean)
   : '*';
 
 // Where uploaded IFCs and converted XKTs live. Override DATA_DIR to point at a

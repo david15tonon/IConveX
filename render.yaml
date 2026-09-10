@@ -23,7 +23,7 @@ services:
       # Origins allowed to call the API. No trailing slashes — these are
       # compared against the browser's Origin header, which never has one.
       - key: CORS_ORIGIN
-        value: https://iconvex-convex.vercel.app
+        value: https://iconvex.vercel.app
 
       # 200 MB IFC files will exhaust the 512 MB free instance during
       # conversion. Lower this, or move to a paid instance, before relying on it.
