@@ -51,7 +51,7 @@ build **avant** de diagnostiquer. Le code qu'on lit n'est pas forcément celui
 qui tourne.
 
 **[2026-09-10] | J'ai propagé un domaine que je n'avais jamais vérifié.**
-J'ai reprix `https://iconvex-convex.vercel.app` depuis le commit `6fe049c` et je
+J'ai repris `https://iconvex-convex.vercel.app` depuis le commit `6fe049c` et je
 l'ai recopié dans `render.yaml` et `.env.example`. Le vrai domaine déployé est
 `https://iconvex.vercel.app`. J'ai corrigé le slash final avec soin… sur un nom
 d'hôte faux depuis le départ, ce qui a coûté un aller-retour complet de déploiement.
