@@ -11,7 +11,7 @@ import { convertIfcToXkt } from './src/convert.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const PORT = Number(process.env.PORT );
+const PORT = Number(process.env.PORT) || 3000;
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 200);
 const JOB_TTL_MINUTES = Number(process.env.JOB_TTL_MINUTES || 60);
 const MAX_CONCURRENT_CONVERSIONS = Number(process.env.MAX_CONCURRENT_CONVERSIONS || 2);
@@ -19,8 +19,13 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
   : '*';
 
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const OUTPUTS_DIR = path.join(__dirname, 'outputs');
+// Where uploaded IFCs and converted XKTs live. Override DATA_DIR to point at a
+// mounted persistent volume (e.g. /var/data on Render) so files survive
+// restarts; the default keeps everything next to the source, as before.
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+const OUTPUTS_DIR = path.join(DATA_DIR, 'outputs');
 fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 fs.mkdirSync(OUTPUTS_DIR, { recursive: true });
 
