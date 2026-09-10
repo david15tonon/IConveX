@@ -49,3 +49,30 @@ changements légitimes de `config.js`.
 **Règle :** `git fetch` et comparer avec le commit exact indiqué dans le log de
 build **avant** de diagnostiquer. Le code qu'on lit n'est pas forcément celui
 qui tourne.
+
+**[2026-09-10] | J'ai propagé un domaine que je n'avais jamais vérifié.**
+J'ai reprix `https://iconvex-convex.vercel.app` depuis le commit `6fe049c` et je
+l'ai recopié dans `render.yaml` et `.env.example`. Le vrai domaine déployé est
+`https://iconvex.vercel.app`. J'ai corrigé le slash final avec soin… sur un nom
+d'hôte faux depuis le départ, ce qui a coûté un aller-retour complet de déploiement.
+**Règle :** une valeur trouvée dans le dépôt n'est pas une valeur vérifiée. Une
+URL de production se lit dans le dashboard de l'hébergeur ou dans l'`Origin` d'une
+requête réelle, jamais dans un `.env.example`. Corollaire du principe
+« ne jamais supposer » de CLAUDE.md : ça couvre aussi les valeurs recopiées.
+
+**[2026-09-10] | Modifier un fichier de config d'infra ne change rien au service qui tourne.**
+`render.yaml` ne s'applique qu'à une synchro de blueprint. Le service
+`iconvex1.onrender.com` existait avant ce fichier, donc il lit ses variables
+depuis le dashboard Render. Idem pour `.env.example`, que rien ne lit jamais.
+**Règle :** distinguer config *déclarative* (versionnée, appliquée au provisioning)
+et état *runtime* (dashboard, appliqué au redémarrage). Corriger le fichier ne
+dispense pas de corriger la variable en place — et inversement.
+
+**[2026-09-10] | Un upload avec barre de progression déclenche un preflight CORS.**
+`app.js:172` attache un listener à `xhr.upload`, ce qui rend la requête
+« non-simple » : le navigateur envoie un `OPTIONS` avant le `POST`. Un `POST`
+`FormData` seul n'aurait pas été preflighté.
+**Règle :** tester CORS sur la méthode qui échoue vraiment. Un `GET /api/health`
+qui passe ne prouve rien sur un `POST` preflighté — vérifier avec
+`curl -X OPTIONS -H "Origin: ..." -H "Access-Control-Request-Method: POST" -D-`
+et confirmer la **présence** de l'en-tête, avec un contrôle négatif.
