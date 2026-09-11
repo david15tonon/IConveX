@@ -59,9 +59,12 @@ tourner en serverless (voir `tasks/lessons.md`, leçon 4).
       par CORS — les ajouter à `CORS_ORIGIN` si on veut tester en preview.
 - [x] `fix/vercel-deployment` fusionnée dans `main` (`f356b8a`). La PR #1 n'avait
       embarqué que les 2 premiers commits ; les 3 suivants ont été poussés ensuite.
-- [ ] **Décision** : `MAX_UPLOAD_MB=200` fait sauter l'instance gratuite Render
-      (512 Mo) pendant `convert2xkt`. Baisser la limite ou passer à une
-      instance payante. Signalé en commentaire dans `render.yaml`.
+- [x] **Décision (2026-09-11) : `MAX_UPLOAD_MB` reste à 200.** Arbitré par David,
+      ne pas reproposer de le baisser. Conséquence acceptée : sur l'instance
+      gratuite (512 Mo), un IFC volumineux peut faire sauter le process pendant
+      `convert2xkt` ; la file étant en mémoire, le job disparaît avec lui et le
+      frontend restera en polling jusqu'à l'erreur. Si ça se produit en vrai,
+      c'est la piste à regarder en premier — pas un bug à chercher ailleurs.
 
 ## Dette connue, non traitée
 
