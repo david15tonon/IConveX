@@ -6,8 +6,10 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node --env-file-if-exists=.env server.js",
-    "dev": "node --watch --env-file-if-exists=.env server.js"
+    "start": "npm test && node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js",
+    "test": "mocha",
+    "serve": "node --env-file-if-exists=.env server.js"
   },
   "engines": {
     "node": "22.x"
@@ -17,6 +19,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "helmet": "^7.1.0",
+    "mocha": "^12.0.0",
     "multer": "^2.0.0"
   }
 }

@@ -13,7 +13,10 @@ services:
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm ci
+    # Tests gate the deploy: a red suite fails the build and the currently
+    # running version stays up. They also run again in `npm start`, so a
+    # broken build can never reach a live process.
+    buildCommand: npm ci && npm test
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:

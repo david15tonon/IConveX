@@ -14,11 +14,15 @@ const WORKER_PATH = path.join(__dirname, 'convertWorker.js');
  *
  * @param {string} inputPath  Path to the source .ifc file.
  * @param {string} outputPath Path the .xkt file should be written to.
+ * @param {object} [options]
+ * @param {string} [options.workerPath] Worker script to run. Overridable so the
+ *   worker lifecycle below can be tested with instant stand-ins, rather than
+ *   loading web-ifc on every run of a suite that gates server startup.
  * @returns {Promise<string>} Resolves with outputPath on success.
  */
-export function convertIfcToXkt(inputPath, outputPath) {
+export function convertIfcToXkt(inputPath, outputPath, { workerPath = WORKER_PATH } = {}) {
   return new Promise((resolve, reject) => {
-    const worker = new Worker(WORKER_PATH, {
+    const worker = new Worker(workerPath, {
       workerData: { inputPath, outputPath },
     });
 
