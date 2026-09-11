@@ -209,16 +209,36 @@
     xhr.send(formData);
   }
 
+  // The server can stop answering for a while — a restart, a cold start on a
+  // free instance, a saturated CPU — while the conversion itself is still on
+  // track. Giving up on the first failed poll reported an error for jobs that
+  // went on to finish, so transient failures are now tolerated for a while.
+  const MAX_TRANSIENT_POLL_FAILURES = 40; // ~60s at 1.5s between polls
+
   function pollJob(jobId) {
     stopPolling();
+    let transientFailures = 0;
 
     const check = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/jobs/${jobId}`);
-        if (!res.ok) {
-          throw new Error(`Statut du job introuvable (${res.status}).`);
+
+        // A job the server no longer knows about is gone for good: the queue
+        // lives in memory, so a restart takes it along. Retrying cannot help.
+        if (res.status === 404) {
+          stopPolling();
+          showError(
+            'Le serveur a perdu ce job — il a sans doute redémarré. Relancez la conversion.'
+          );
+          return;
         }
+
+        if (!res.ok) {
+          throw new Error(`Réponse ${res.status} du serveur.`);
+        }
+
         const job = await res.json();
+        transientFailures = 0;
 
         if (job.status === 'complete') {
           stopPolling();
@@ -230,8 +250,18 @@
         }
         // 'queued' / 'converting' -> keep polling
       } catch (err) {
-        stopPolling();
-        showError(err.message || 'Erreur de communication avec le serveur.');
+        transientFailures += 1;
+
+        if (transientFailures >= MAX_TRANSIENT_POLL_FAILURES) {
+          stopPolling();
+          showError(
+            'Le serveur ne répond plus. Réessayez dans un instant — il redémarre peut-être.'
+          );
+          return;
+        }
+
+        statusMessage.textContent =
+          'Le serveur ne répond pas pour le moment — la conversion se poursuit, nouvelle tentative…';
       }
     };
 
