@@ -1,11 +1,7 @@
-// Point this at wherever the IConveX backend is running.
-// For local dev with `npm start` in /backend, the default is fine.
-// For production, replace with your deployed backend URL
-// (e.g. "https://api.votredomaine.com") — no trailing slash.
-// iconvex1.onrender.com appartient à un compte Render auquel on n'a plus accès ;
-// le backend est redéployé via render.yaml sous le nom "iconvex-backend".
-// À confirmer dans le dashboard après le premier déploiement — sans slash final.
+// Where the IConveX backend is running. No trailing slash: the browser's Origin
+// header never has one, and the server compares the two.
+// Running locally? Use "http://localhost:3000" with `npm start` in /backend.
 window.ICONVEX_API_BASE = window.ICONVEX_API_BASE || "https://iconvex-backend.onrender.com";
 
-// Optional: link the "GitHub" buttons in the header/footer to your repo.
-window.ICONVEX_GITHUB_URL = window.ICONVEX_GITHUB_URL || "https://github.com/";
+// Target of the "GitHub" links in the header and the footer.
+window.ICONVEX_GITHUB_URL = window.ICONVEX_GITHUB_URL || "https://github.com/david15tonon/IConveX";
