@@ -170,6 +170,72 @@ Un test instable (flaky) fera tomber la production, puisque `npm start` en
 dépend. La suite doit être déterministe : aucun appel réseau, aucune horloge
 murale, aucune conversion réelle.
 
+## EN COURS — version anglaise + SEO (2026-09-11)
+
+### Décisions (arbitrées par David)
+- **Une seule URL**, bascule côté client, exactement le modèle `test_site` :
+  les deux langues dans le DOM, CSS en masque une, bouton + `localStorage`.
+- **Anglais par défaut** sur `/`.
+
+Conséquence SEO assumée : avec une seule URL pour deux langues, `hreflang` n'a
+pas de sens et Google indexera un mélange des deux textes. Tout le reste du SEO
+(canonical, Open Graph, Twitter, robots, sitemap, données structurées) reste
+pleinement applicable et sera fait.
+
+### Emprunts à test_site
+- Bascule : `html.lang-en` / `html.lang-fr` + `.lang-en .fr-text { display: none }`
+- Bouton `#langBtn`, `hidden` dans le HTML et révélé par le JS
+  (amélioration progressive : sans JS, pas de bouton mort)
+- Persistance `localStorage`, événement `site:language` pour re-rendre
+- Jeu de méta : author, robots, canonical, og:*, twitter:*, og:locale:alternate
+
+### Difficulté principale
+`app.js` réécrit `#dropzone-title`, `#dropzone-subtitle`, `#status-message`,
+`#file-name`, `#status-chip` et `#footer-copy`. Ces œufs-là ne peuvent pas
+contenir de `<span>` bilingues : le premier `textContent =` les écraserait et la
+bascule serait cassée. Il leur faut un dictionnaire `t()` **et** un re-rendu
+déclenché par le changement de langue, sinon le texte déjà affiché resterait
+figé dans l'ancienne langue.
+
+### ✅ FAIT ET VÉRIFIÉ EN NAVIGATEUR (2026-09-11)
+Pilotage d'un navigateur réel sur la page servie : **0 erreur console, 0 requête
+en échec**, et chaque point contrôlé :
+
+| État | `html` | h1 | Dropzone (piloté par JS) | Bouton |
+|---|---|---|---|---|
+| Au chargement | `lang="en"` `.lang-en` | « Automate your BIM workflows » | « Drop your IFC file here » | `FR` |
+| Après bascule | `lang="fr"` `.lang-fr` | « Automatisez vos workflows BIM » | « Déposez votre fichier IFC » | `EN` |
+| Après rechargement | `lang="fr"` conservé | français | français | `EN` |
+| Retour à l'anglais + rechargement | `lang="en"` conservé | anglais | anglais | `FR` |
+
+Le dropzone et le pied de page suivent bien la langue : c'est ce qui prouve que
+le re-rendu fonctionne, puisque ce sont justement les éléments réécrits par le JS.
+`aria-label` bascule aussi (« Passer en français » / « Switch to English »).
+Captures des deux langues inspectées : aucune mise en page cassée, aucun texte
+en double.
+
+Dictionnaire vérifié symétrique : 21 clés de chaque côté, aucune orpheline,
+aucune clé utilisée sans traduction.
+
+### Travaux (faits)
+1. `js/i18n.js` (nouveau) : dictionnaire, `t()`, `applyLanguage()`, persistance,
+   câblage du bouton, événement de changement.
+2. `index.html` : `lang="en"`, tête SEO complète, spans bilingues sur tout le
+   texte statique, bouton de langue dans la nav.
+3. `js/app.js` : passer les chaînes dynamiques par `t()`, mémoriser l'état
+   affiché et le re-rendre à chaque bascule. Formats localisés (Mo / MB).
+4. `css/styles.css` : le sélecteur de masquage + style du bouton.
+5. SEO : `robots.txt`, `sitemap.xml` **dans `frontend/`** (celui à la racine du
+   dépôt est vide et hors du Root Directory Vercel : il ne serait jamais servi),
+   `site.webmanifest`, données structurées JSON-LD.
+6. Vérification en navigateur réel : bascule, persistance, absence d'erreur
+   console, et texte dynamique qui suit bien la langue.
+
+### Réserve
+`assets/logo.png` fait 1422×283, un format bannière. Utilisé en `og:image` il
+sera recadré ou encadré de bandes par les réseaux sociaux, qui attendent du
+1200×630. À remplacer par une vraie image d'aperçu un jour.
+
 ## Dette connue, non traitée
 
 - [ ] File d'attente en mémoire (`backend/src/jobQueue.js:14`) : perdue à chaque

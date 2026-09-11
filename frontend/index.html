@@ -1,11 +1,52 @@
 <!DOCTYPE html>
-<html lang="fr">
+<!-- English is the default; French ships in the same page and is revealed by the
+     language switch. See js/i18n.js. -->
+<html lang="en" class="lang-en" prefix="og: https://ogp.me/ns#">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>IConveX — Convertisseur IFC vers XKT</title>
-<meta name="description" content="Convertissez vos modèles BIM IFC au format XKT en quelques secondes. Outil open source, gratuit."/>
+
+<title>IConveX — Free online IFC to XKT converter</title>
+<meta name="description" content="Convert IFC BIM models to the xeokit XKT format in seconds. Free, open source, no account needed — upload an IFC file and download the .xkt."/>
+<meta name="keywords" content="IFC, XKT, BIM, conversion, open source, gratuit, xeokit-convert"/>
+<meta name="author" content="IConveX"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://iconvex.vercel.app/"/>
+
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="IConveX"/>
+<meta property="og:url" content="https://iconvex.vercel.app/"/>
+<meta property="og:title" content="IConveX — Free online IFC to XKT converter"/>
+<meta property="og:description" content="Convert IFC BIM models to the xeokit XKT format in seconds. Free, open source, no account needed."/>
+<meta property="og:image" content="https://iconvex.vercel.app/assets/logo.png"/>
+<meta property="og:image:alt" content="IConveX logo"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:locale:alternate" content="fr_FR"/>
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="IConveX — Free online IFC to XKT converter"/>
+<meta name="twitter:description" content="Convert IFC BIM models to the xeokit XKT format in seconds. Free, open source, no account needed."/>
+<meta name="twitter:image" content="https://iconvex.vercel.app/assets/logo.png"/>
+<meta name="twitter:image:alt" content="IConveX logo"/>
+
 <link rel="icon" href="assets/logo.png" type="image/png"/>
+<link rel="apple-touch-icon" href="assets/logo.png"/>
+<link rel="manifest" href="site.webmanifest"/>
+<meta name="theme-color" content="#ffffff"/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "IConveX",
+  "url": "https://iconvex.vercel.app/",
+  "description": "Convert IFC BIM models to the xeokit XKT format in seconds. Free and open source.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "inLanguage": ["en", "fr"],
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+}
+</script>
 
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -114,13 +155,16 @@
       <img class="h-6 object-contain" alt="IConveX" src="assets/logo.png"/>
     </a>
     <div class="hidden md:flex gap-6">
-      <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="#pipeline">Comment ça marche</a>
-      <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="#features">Fonctionnalités</a>
+      <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="#pipeline"><span class="en-text" lang="en">How it works</span><span class="fr-text" lang="fr">Comment ça marche</span></a>
+      <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="#features"><span class="en-text" lang="en">Features</span><span class="fr-text" lang="fr">Fonctionnalités</span></a>
       <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="https://github.com/xeokit/xeokit-convert" target="_blank" rel="noopener">API</a>
     </div>
   </div>
   <div class="flex items-center gap-4">
     <a class="text-on-surface-variant font-label-md px-4 py-2 hover:bg-surface-container-low rounded-lg transition-colors" href="#" id="nav-github-link" target="_blank" rel="noopener">GitHub</a>
+    <button id="lang-switch" type="button" hidden lang="fr"
+            class="lang-switch text-on-surface-variant font-label-md px-3 py-1.5 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors"
+            aria-label="Passer en français">FR</button>
     <span class="bg-tertiary-container text-on-tertiary-container font-label-md px-3 py-1.5 rounded-lg">Open Source</span>
   </div>
 </nav>
@@ -128,11 +172,10 @@
 <!-- Hero Section -->
 <main class="flex-grow flex flex-col items-center justify-center px-margin py-24 max-w-container-max mx-auto w-full text-center">
   <h1 class="font-headline-lg text-headline-lg text-on-surface mb-6 max-w-3xl">
-    Automatisez vos workflows BIM. <br/>Convertissez l'IFC en XKT en quelques secondes.
+    <span class="en-text" lang="en">Automate your BIM workflows. <br/>Convert IFC to XKT in seconds.</span><span class="fr-text" lang="fr">Automatisez vos workflows BIM. <br/>Convertissez l'IFC en XKT en quelques secondes.</span>
   </h1>
   <p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl">
-    Un pipeline de conversion gratuit et open source pour les applications AEC modernes.
-    Basé sur <a class="text-primary hover:underline" href="https://github.com/xeokit/xeokit-convert" target="_blank" rel="noopener">xeokit-convert</a>.
+    <span class="en-text" lang="en">A free, open source conversion pipeline for modern AEC applications. Built on </span><span class="fr-text" lang="fr">Un pipeline de conversion gratuit et open source pour les applications AEC modernes. Basé sur </span><a class="text-primary hover:underline" href="https://github.com/xeokit/xeokit-convert" target="_blank" rel="noopener">xeokit-convert</a>.
   </p>
 
   <!-- Converter widget -->
@@ -147,11 +190,11 @@
       >
         <span class="material-symbols-outlined text-4xl text-primary group-hover:scale-110 transition-transform" id="dropzone-icon">cloud_upload</span>
         <div class="text-center">
-          <p class="font-headline-md text-headline-md text-on-surface" id="dropzone-title">Déposez votre fichier IFC</p>
-          <p class="font-body-md text-body-md text-on-surface-variant mt-2" id="dropzone-subtitle">Glissez-déposez, ou cliquez pour parcourir vos fichiers</p>
+          <p class="font-headline-md text-headline-md text-on-surface" id="dropzone-title">Drop your IFC file here</p>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-2" id="dropzone-subtitle">Drag and drop, or click to browse your files</p>
         </div>
         <span class="mt-4 bg-primary-container text-on-primary-container font-label-md px-6 py-3 rounded-lg hover:opacity-90 transition-opacity" id="dropzone-button">
-          Choisir un fichier
+          <span class="en-text" lang="en">Choose a file</span><span class="fr-text" lang="fr">Choisir un fichier</span>
         </span>
         <input type="file" id="file-input" name="file" accept=".ifc" class="sr-only"/>
       </label>
@@ -175,10 +218,10 @@
 
       <div class="flex gap-3 mt-4">
         <a id="download-link" class="hidden flex-1 text-center bg-primary-container text-on-primary-container font-label-md px-6 py-3 rounded-lg hover:opacity-90 transition-opacity" download>
-          Télécharger le .xkt
+          <span class="en-text" lang="en">Download the .xkt</span><span class="fr-text" lang="fr">Télécharger le .xkt</span>
         </a>
         <button id="reset-button" type="button" class="hidden flex-1 text-center bg-surface-container text-on-surface font-label-md px-6 py-3 rounded-lg hover:bg-surface-container-high transition-colors">
-          Convertir un autre fichier
+          <span class="en-text" lang="en">Convert another file</span><span class="fr-text" lang="fr">Convertir un autre fichier</span>
         </button>
       </div>
     </div>
@@ -193,7 +236,7 @@
         <div id="node-input" class="pipeline-node w-16 h-16 rounded-full border-2 border-outline-variant bg-surface-container-lowest flex items-center justify-center transition-colors">
           <span class="font-code-sm text-code-sm text-on-surface-variant">.IFC</span>
         </div>
-        <span class="font-label-md text-label-md text-on-surface">Entrée</span>
+        <span class="font-label-md text-label-md text-on-surface"><span class="en-text" lang="en">Input</span><span class="fr-text" lang="fr">Entrée</span></span>
       </div>
 
       <div class="flex flex-col items-center gap-4 bg-background px-4">
@@ -201,14 +244,14 @@
           <span id="node-engine-icon" class="material-symbols-outlined text-on-surface-variant">memory</span>
           <div id="node-engine-pulse" class="hidden absolute inset-0 rounded-full border-2 border-primary opacity-20 animate-ping"></div>
         </div>
-        <span id="node-engine-label" class="font-label-md text-label-md text-on-surface-variant">Moteur de conversion</span>
+        <span id="node-engine-label" class="font-label-md text-label-md text-on-surface-variant"><span class="en-text" lang="en">Conversion engine</span><span class="fr-text" lang="fr">Moteur de conversion</span></span>
       </div>
 
       <div class="flex flex-col items-center gap-4 bg-background">
         <div id="node-output" class="pipeline-node w-16 h-16 rounded-full border-2 border-outline-variant bg-surface-container-lowest flex items-center justify-center transition-colors">
           <span class="font-code-sm text-code-sm text-on-surface-variant">.XKT</span>
         </div>
-        <span class="font-label-md text-label-md text-on-surface">Sortie</span>
+        <span class="font-label-md text-label-md text-on-surface"><span class="en-text" lang="en">Output</span><span class="fr-text" lang="fr">Sortie</span></span>
       </div>
     </div>
   </div>
@@ -219,29 +262,29 @@
       <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center mb-6">
         <span class="material-symbols-outlined text-primary">bolt</span>
       </div>
-      <h3 class="font-headline-md text-headline-md text-on-surface mb-3">Rapide</h3>
-      <p class="font-body-md text-body-md text-on-surface-variant">Traite les gros modèles BIM efficacement grâce à un pipeline de conversion optimisé.</p>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-3"><span class="en-text" lang="en">Fast</span><span class="fr-text" lang="fr">Rapide</span></h3>
+      <p class="font-body-md text-body-md text-on-surface-variant"><span class="en-text" lang="en">Handles large BIM models efficiently through an optimised conversion pipeline.</span><span class="fr-text" lang="fr">Traite les gros modèles BIM efficacement grâce à un pipeline de conversion optimisé.</span></p>
     </div>
     <div class="bg-surface-container-lowest border border-outline-variant p-8 rounded-xl">
       <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center mb-6">
         <span class="material-symbols-outlined text-primary">architecture</span>
       </div>
-      <h3 class="font-headline-md text-headline-md text-on-surface mb-3">Géométrie fidèle</h3>
-      <p class="font-body-md text-body-md text-on-surface-variant">Conserve la précision : chaque sommet et chaque propriété de métadonnées est préservé.</p>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-3"><span class="en-text" lang="en">Faithful geometry</span><span class="fr-text" lang="fr">Géométrie fidèle</span></h3>
+      <p class="font-body-md text-body-md text-on-surface-variant"><span class="en-text" lang="en">Keeps full precision: every vertex and every metadata property is preserved.</span><span class="fr-text" lang="fr">Conserve la précision : chaque sommet et chaque propriété de métadonnées est préservé.</span></p>
     </div>
     <div class="bg-surface-container-lowest border border-outline-variant p-8 rounded-xl">
       <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center mb-6">
         <span class="material-symbols-outlined text-primary">api</span>
       </div>
-      <h3 class="font-headline-md text-headline-md text-on-surface mb-3">API ouverte</h3>
-      <p class="font-body-md text-body-md text-on-surface-variant">Intégrez directement la conversion dans votre propre visualiseur ou pipeline via une API REST simple.</p>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-3"><span class="en-text" lang="en">Open API</span><span class="fr-text" lang="fr">API ouverte</span></h3>
+      <p class="font-body-md text-body-md text-on-surface-variant"><span class="en-text" lang="en">Plug conversion straight into your own viewer or pipeline through a simple REST API.</span><span class="fr-text" lang="fr">Intégrez directement la conversion dans votre propre visualiseur ou pipeline via une API REST simple.</span></p>
     </div>
     <div class="bg-surface-container-lowest border border-outline-variant p-8 rounded-xl">
       <div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center mb-6">
         <span class="material-symbols-outlined text-primary">code</span>
       </div>
-      <h3 class="font-headline-md text-headline-md text-on-surface mb-3">100% open source</h3>
-      <p class="font-body-md text-body-md text-on-surface-variant">Frontend et backend sont libres, gratuits, et modifiables. Aucun compte ni paiement requis.</p>
+      <h3 class="font-headline-md text-headline-md text-on-surface mb-3"><span class="en-text" lang="en">100% open source</span><span class="fr-text" lang="fr">100% open source</span></h3>
+      <p class="font-body-md text-body-md text-on-surface-variant"><span class="en-text" lang="en">Frontend and backend are free to use and modify. No account, no payment.</span><span class="fr-text" lang="fr">Frontend et backend sont libres, gratuits, et modifiables. Aucun compte ni paiement requis.</span></p>
     </div>
   </div>
 </main>
@@ -249,7 +292,7 @@
 <!-- Footer -->
 <footer class="bg-surface-container-lowest border-t border-outline-variant w-full py-12 px-margin mt-24 flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto">
   <div class="font-label-md text-label-md text-on-surface-variant mb-4 md:mb-0" id="footer-copy">
-    © IConveX. Projet open source, gratuit — automatisation BIM.
+    © IConveX. Free and open source — BIM automation.
   </div>
   <div class="flex gap-6">
     <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="https://github.com/xeokit/xeokit-convert" target="_blank" rel="noopener">xeokit-convert</a>
@@ -258,6 +301,7 @@
 </footer>
 
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

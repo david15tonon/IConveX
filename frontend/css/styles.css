@@ -89,3 +89,27 @@ input:focus-visible {
   outline: 2px solid #004ac6;
   outline-offset: 2px;
 }
+
+/* ---------------------------------------------------------------------------
+   Language switching
+
+   Both languages are present in the page at once; only one is ever shown. The
+   active language is a class on <html>, set by js/i18n.js, so switching costs
+   no reload and needs no second URL.
+
+   `[hidden]` is restated here because the switch button ships hidden in the
+   markup and is revealed by JavaScript — a button that cannot work should not
+   be offered when scripts are unavailable.
+--------------------------------------------------------------------------- */
+
+[hidden],
+.lang-en .fr-text,
+.lang-fr .en-text {
+  display: none !important;
+}
+
+.lang-switch {
+  min-width: 2.75rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}

@@ -1,5 +1,16 @@
 (() => {
   const API_BASE = window.ICONVEX_API_BASE;
+  const { t } = window.ICONVEX_I18N;
+
+  // What the language-dependent parts of the UI are currently showing. Their
+  // text is written by JavaScript, so switching language has to redraw them --
+  // otherwise whatever is already on screen stays frozen in the old language.
+  const shown = {
+    dropzone: { kind: 'idle' },  // 'idle' | 'invalid' | 'file'
+    file: null,                  // { name, sizeMb }
+    chip: null,                  // key into CHIP_META
+    status: null,                // { key, args } or { raw }
+  };
 
   // -- DOM references ---------------------------------------------------
   const dropzone = document.getElementById('dropzone');
@@ -26,8 +37,7 @@
 
   document.getElementById('footer-github-link').href = window.ICONVEX_GITHUB_URL;
   document.getElementById('nav-github-link').href = window.ICONVEX_GITHUB_URL;
-  document.getElementById('footer-copy').textContent =
-    `© ${new Date().getFullYear()} IConveX. Projet open source, gratuit — automatisation BIM.`;
+  const footerCopy = document.getElementById('footer-copy');
 
   // -- State --------------------------------------------------------------
   let pollTimer = null;
@@ -35,12 +45,45 @@
   let currentDownloadUrl = null;
 
   const CHIP_META = {
-    uploading: { label: 'Envoi en cours', className: 'chip-uploading' },
-    queued: { label: 'En attente', className: 'chip-pending' },
-    converting: { label: 'Conversion en cours', className: 'chip-converting' },
-    complete: { label: 'Terminé', className: 'chip-complete' },
-    error: { label: 'Erreur', className: 'chip-error' },
+    uploading: { key: 'chipUploading', className: 'chip-uploading' },
+    queued: { key: 'chipQueued', className: 'chip-pending' },
+    converting: { key: 'chipConverting', className: 'chip-converting' },
+    complete: { key: 'chipComplete', className: 'chip-complete' },
+    error: { key: 'chipError', className: 'chip-error' },
   };
+
+  /**
+   * Redraws every piece of text this script owns, in the active language.
+   * Called on load and again whenever the visitor switches language.
+   */
+  function renderLanguage() {
+    footerCopy.textContent = t('footer', new Date().getFullYear());
+
+    if (shown.dropzone.kind === 'idle') {
+      dropzoneTitle.textContent = t('dropTitle');
+      dropzoneSubtitle.textContent = t('dropSubtitle');
+    } else if (shown.dropzone.kind === 'invalid') {
+      dropzoneTitle.textContent = t('invalidTitle');
+      dropzoneSubtitle.textContent = t('invalidSubtitle');
+    } else if (shown.file) {
+      dropzoneTitle.textContent = shown.file.name;
+      dropzoneSubtitle.textContent = t('megabytes', shown.file.sizeMb);
+    }
+
+    if (shown.chip) statusChip.textContent = t(CHIP_META[shown.chip].key);
+
+    if (shown.status) {
+      // Errors reported by the server are passed through as they arrive; only
+      // the messages this page authors itself can be translated.
+      statusMessage.textContent = shown.status.raw ?? t(shown.status.key, ...(shown.status.args || []));
+    }
+  }
+
+  /** Records what the status line should say, then draws it. */
+  function setStatus(keyOrRaw, { raw = false, args = [] } = {}) {
+    shown.status = raw ? { raw: keyOrRaw } : { key: keyOrRaw, args };
+    renderLanguage();
+  }
 
   // -- Helpers --------------------------------------------------------------
 
@@ -57,7 +100,8 @@
 
   function setChip(status) {
     const meta = CHIP_META[status];
-    statusChip.textContent = meta.label;
+    shown.chip = status;
+    statusChip.textContent = t(meta.key);
     statusChip.className = `chip shrink-0 ml-3 ${meta.className}`;
   }
 
@@ -114,8 +158,9 @@
     statusPanel.classList.add('hidden');
     dropzone.classList.remove('dropzone-active', 'dropzone-error');
     dropzoneIcon.textContent = 'cloud_upload';
-    dropzoneTitle.textContent = 'Déposez votre fichier IFC';
-    dropzoneSubtitle.textContent = 'Glissez-déposez, ou cliquez pour parcourir vos fichiers';
+    shown.dropzone = { kind: 'idle' };
+    shown.file = null;
+    renderLanguage();
     dropzoneButton.classList.remove('hidden');
     downloadLink.classList.add('hidden');
     resetButton.classList.add('hidden');
@@ -133,26 +178,27 @@
   function handleFile(file) {
     if (!isIfcFile(file)) {
       dropzone.classList.add('dropzone-error');
-      dropzoneTitle.textContent = 'Type de fichier invalide';
-      dropzoneSubtitle.textContent = 'Seuls les fichiers .ifc sont acceptés. Réessayez.';
+      shown.dropzone = { kind: 'invalid' };
+      renderLanguage();
       setTimeout(() => {
         dropzone.classList.remove('dropzone-error');
-        dropzoneTitle.textContent = 'Déposez votre fichier IFC';
-        dropzoneSubtitle.textContent = 'Glissez-déposez, ou cliquez pour parcourir vos fichiers';
+        shown.dropzone = { kind: 'idle' };
+        renderLanguage();
       }, 2200);
       return;
     }
 
     dropzoneButton.classList.add('hidden');
     dropzoneIcon.textContent = 'description';
-    dropzoneTitle.textContent = file.name;
-    dropzoneSubtitle.textContent = `${(file.size / 1024 / 1024).toFixed(2)} Mo`;
+    shown.dropzone = { kind: 'file' };
+    shown.file = { name: file.name, sizeMb: (file.size / 1024 / 1024).toFixed(2) };
+    renderLanguage();
 
     fileNameEl.textContent = file.name;
     showStatusPanel();
     setChip('uploading');
     setPipelineStage('uploading');
-    statusMessage.textContent = 'Envoi du fichier vers le serveur…';
+    setStatus('statusUploading');
     progressBar.classList.remove('progress-indeterminate');
     progressBar.style.width = '0%';
     downloadLink.classList.add('hidden');
@@ -186,20 +232,24 @@
       }
 
       if (xhr.status !== 202 || !body || !body.jobId) {
-        showError((body && body.error) || `Le serveur a répondu avec le code ${xhr.status}.`);
+        showError(
+          body && body.error
+            ? { raw: body.error }
+            : { key: 'statusServerResponded', args: [xhr.status] }
+        );
         return;
       }
 
       progressBar.classList.add('progress-indeterminate');
       setChip('converting');
       setPipelineStage('converting');
-      statusMessage.textContent = 'Conversion IFC → XKT en cours…';
+      setStatus('statusConverting');
       pollJob(body.jobId);
     });
 
     xhr.addEventListener('error', () => {
       currentXhr = null;
-      showError(`Impossible de joindre le serveur (${API_BASE}). Est-il démarré ?`);
+      showError({ key: 'statusServerUnreachable', args: [API_BASE] });
     });
 
     xhr.addEventListener('abort', () => {
@@ -227,14 +277,12 @@
         // lives in memory, so a restart takes it along. Retrying cannot help.
         if (res.status === 404) {
           stopPolling();
-          showError(
-            'Le serveur a perdu ce job — il a sans doute redémarré. Relancez la conversion.'
-          );
+          showError({ key: 'statusJobLost' });
           return;
         }
 
         if (!res.ok) {
-          throw new Error(`Réponse ${res.status} du serveur.`);
+          throw new Error(`Server responded with ${res.status}.`);
         }
 
         const job = await res.json();
@@ -246,7 +294,7 @@
           showComplete(currentDownloadUrl);
         } else if (job.status === 'error') {
           stopPolling();
-          showError(job.error || 'La conversion a échoué.');
+          showError(job.error ? { raw: job.error } : { key: 'statusConversionFailed' });
         }
         // 'queued' / 'converting' -> keep polling
       } catch (err) {
@@ -254,14 +302,11 @@
 
         if (transientFailures >= MAX_TRANSIENT_POLL_FAILURES) {
           stopPolling();
-          showError(
-            'Le serveur ne répond plus. Réessayez dans un instant — il redémarre peut-être.'
-          );
+          showError({ key: 'statusUnreachable' });
           return;
         }
 
-        statusMessage.textContent =
-          'Le serveur ne répond pas pour le moment — la conversion se poursuit, nouvelle tentative…';
+        setStatus('statusRetrying');
       }
     };
 
@@ -274,23 +319,41 @@
     setPipelineStage('complete');
     progressBar.classList.remove('progress-indeterminate');
     progressBar.style.width = '100%';
-    statusMessage.textContent = 'Conversion terminée. Votre fichier .xkt est prêt.';
+    setStatus('statusComplete');
     downloadLink.href = downloadUrl;
     downloadLink.classList.remove('hidden');
     resetButton.classList.remove('hidden');
   }
 
-  function showError(message) {
+  /**
+   * Shows a failure. Takes a descriptor rather than a finished string so the
+   * message can be redrawn if the visitor switches language afterwards:
+   * `{ key, args }` for text this page owns, `{ raw }` for a message the server
+   * sent, which is passed through untranslated.
+   */
+  function showError(status) {
     setChip('error');
     setPipelineStage('error');
     progressBar.classList.remove('progress-indeterminate');
     progressBar.style.width = '100%';
-    statusMessage.textContent = message;
+
+    if (status.raw !== undefined) {
+      setStatus(status.raw, { raw: true });
+    } else {
+      setStatus(status.key, { args: status.args || [] });
+    }
+
     resetButton.classList.remove('hidden');
     downloadLink.classList.add('hidden');
   }
 
   // -- Wiring ---------------------------------------------------------------
+
+  // Redraw everything this script owns whenever the visitor switches language,
+  // then draw it once now for the initial render.
+  window.ICONVEX_I18N.onChange(renderLanguage);
+  renderLanguage();
+
 
   fileInput.addEventListener('change', () => {
     if (fileInput.files[0]) handleFile(fileInput.files[0]);
