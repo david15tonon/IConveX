@@ -236,6 +236,32 @@ aucune clé utilisée sans traduction.
 sera recadré ou encadré de bandes par les réseaux sociaux, qui attendent du
 1200×630. À remplacer par une vraie image d'aperçu un jour.
 
+## FAIT — page de référence de l'API (2026-09-11)
+
+`frontend/api.html`, bilingue, servie sur `/api.html`. Documente les 4 endpoints
+avec exemples curl et fetch, codes d'erreur réels relevés dans `server.js`
+(400/413 à l'upload, 404/409 au téléchargement), et une section « limites »
+qui dit la vérité : CORS bloque les appels navigateur tiers, l'instance gratuite
+dort, la conversion est lente, les jobs meurent au redémarrage, aucune
+authentification ni limitation de débit.
+
+Deux mensonges corrigés au passage, dans la ligne du signalement de David sur
+la vitesse :
+- le lien « API » de la nav pointait sur le dépôt **xeokit-convert**, pas sur
+  notre API ;
+- la carte promettait « intégrez dans votre propre visualiseur », ce que la
+  politique CORS interdit depuis un navigateur tiers. Reformulée en « depuis
+  votre propre backend », ce qui est exact.
+
+La configuration Tailwind (87 lignes) a été extraite dans
+`js/tailwind-config.js` : deux pages la partagent désormais au lieu d'en
+dupliquer une copie destinée à diverger.
+
+Vérifié en navigateur sur les deux pages : thème Tailwind toujours appliqué
+après extraction (`bodyBg rgb(247,249,255)`, pas une valeur de repli), les 4
+endpoints listés, bascule de langue fonctionnelle sur `api.html`, et **le choix
+de langue suit d'une page à l'autre**. 0 erreur console.
+
 ## Dette connue, non traitée
 
 - [ ] File d'attente en mémoire (`backend/src/jobQueue.js:14`) : perdue à chaque

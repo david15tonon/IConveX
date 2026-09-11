@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!-- English is the default; French ships in the same page and is revealed by the
+     language switch. See js/i18n.js. -->
+<html lang="en" class="lang-en" prefix="og: https://ogp.me/ns#">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+<title>IConveX API — Convert IFC to XKT over HTTP</title>
+<meta name="description" content="REST API reference for IConveX: upload an IFC file, poll the job, download the XKT. Four endpoints, no authentication, free and open source."/>
+<meta name="author" content="David Tonon"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://iconvex.vercel.app/api.html"/>
+
+<meta property="og:type" content="article"/>
+<meta property="og:site_name" content="IConveX"/>
+<meta property="og:url" content="https://iconvex.vercel.app/api.html"/>
+<meta property="og:title" content="IConveX API — Convert IFC to XKT over HTTP"/>
+<meta property="og:description" content="REST API reference for IConveX: upload an IFC file, poll the job, download the XKT."/>
+<meta property="og:image" content="https://iconvex.vercel.app/assets/logo.png"/>
+<meta property="og:image:alt" content="IConveX logo"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:locale:alternate" content="fr_FR"/>
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="IConveX API — Convert IFC to XKT over HTTP"/>
+<meta name="twitter:description" content="REST API reference for IConveX: upload an IFC file, poll the job, download the XKT."/>
+<meta name="twitter:image" content="https://iconvex.vercel.app/assets/logo.png"/>
+
+<link rel="icon" href="assets/logo.png" type="image/png"/>
+<link rel="apple-touch-icon" href="assets/logo.png"/>
+<link rel="manifest" href="site.webmanifest"/>
+<meta name="theme-color" content="#ffffff"/>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="js/tailwind-config.js"></script>
+
+<link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pt-16">
+
+<!-- Navigation -->
+<nav class="bg-surface-container-lowest border-b border-outline-variant fixed top-0 w-full z-50 flex justify-between items-center px-margin h-16 max-w-container-max mx-auto left-0 right-0">
+  <div class="flex items-center gap-8">
+    <a class="flex items-center gap-2" href="./">
+      <img class="h-6 object-contain" alt="IConveX" src="assets/logo.png"/>
+    </a>
+    <div class="hidden md:flex gap-6">
+      <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="./#pipeline"><span class="en-text" lang="en">How it works</span><span class="fr-text" lang="fr">Comment ça marche</span></a>
+      <a class="text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="./#features"><span class="en-text" lang="en">Features</span><span class="fr-text" lang="fr">Fonctionnalités</span></a>
+      <a class="text-primary bg-surface-container-low px-2 py-1 rounded" href="api.html" aria-current="page">API</a>
+    </div>
+  </div>
+  <div class="flex items-center gap-4">
+    <a class="text-on-surface-variant font-label-md px-4 py-2 hover:bg-surface-container-low rounded-lg transition-colors" href="#" id="nav-github-link" target="_blank" rel="noopener">GitHub</a>
+    <button id="lang-switch" type="button" hidden lang="fr"
+            class="lang-switch text-on-surface-variant font-label-md px-3 py-1.5 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors"
+            aria-label="Passer en français">FR</button>
+  </div>
+</nav>
+
+<main class="flex-grow w-full max-w-4xl mx-auto px-margin py-16">
+
+  <h1 class="font-headline-lg text-headline-lg text-on-surface mb-4">
+    <span class="en-text" lang="en">API reference</span><span class="fr-text" lang="fr">Référence de l'API</span>
+  </h1>
+  <p class="font-body-lg text-body-lg text-on-surface-variant mb-4">
+    <span class="en-text" lang="en">Convert IFC to XKT over HTTP. Four endpoints, no authentication, no API key.</span><span class="fr-text" lang="fr">Convertissez l'IFC en XKT en HTTP. Quatre endpoints, sans authentification ni clé d'API.</span>
+  </p>
+
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-12">
+    <p class="font-label-md text-label-md text-on-surface-variant mb-1"><span class="en-text" lang="en">Base URL</span><span class="fr-text" lang="fr">URL de base</span></p>
+    <code class="font-code-sm text-code-sm text-primary break-all">https://iconvex-backend.onrender.com</code>
+  </div>
+
+  <!-- How it works -->
+  <section class="mb-12">
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-3">
+      <span class="en-text" lang="en">How a conversion works</span><span class="fr-text" lang="fr">Comment se déroule une conversion</span>
+    </h2>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-4">
+      <span class="en-text" lang="en">Conversion does not happen inside a single request. You upload the file, the server answers immediately with a job id, and you poll that job until it is done. Large models would otherwise hit an HTTP timeout.</span><span class="fr-text" lang="fr">La conversion ne tient pas dans une seule requête. Vous envoyez le fichier, le serveur répond aussitôt avec un identifiant de job, puis vous interrogez ce job jusqu'à la fin. Sinon, les gros modèles dépasseraient le délai HTTP.</span>
+    </p>
+    <pre class="api-code"><code>curl -F "file=@model.ifc" https://iconvex-backend.onrender.com/api/convert
+# {"jobId":"7c1f…","status":"converting"}
+
+curl https://iconvex-backend.onrender.com/api/jobs/7c1f…
+# {"status":"complete","downloadUrl":"/api/jobs/7c1f…/download", …}
+
+curl -OJ https://iconvex-backend.onrender.com/api/jobs/7c1f…/download
+# model.xkt</code></pre>
+  </section>
+
+  <!-- Endpoints -->
+  <section class="mb-12">
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-6">
+      <span class="en-text" lang="en">Endpoints</span><span class="fr-text" lang="fr">Endpoints</span>
+    </h2>
+
+    <!-- POST /api/convert -->
+    <article class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-6">
+      <p class="font-code-sm text-code-sm mb-3"><span class="api-verb api-verb-post">POST</span> <code class="text-on-surface">/api/convert</code></p>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-4">
+        <span class="en-text" lang="en">Uploads one <code>.ifc</code> file as <code>multipart/form-data</code> under the field name <code>file</code>, and queues it. Responds <code>202</code> before the conversion has started.</span><span class="fr-text" lang="fr">Envoie un fichier <code>.ifc</code> en <code>multipart/form-data</code> sous le champ <code>file</code>, et le met en file. Répond <code>202</code> avant même que la conversion ne démarre.</span>
+      </p>
+      <pre class="api-code"><code>{ "jobId": "7c1f8e2a-…", "status": "converting" }</code></pre>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-4">
+        <span class="en-text" lang="en"><strong>Errors:</strong> <code>400</code> if no file was sent or the extension is not <code>.ifc</code>; <code>413</code> if the file is over the size limit.</span><span class="fr-text" lang="fr"><strong>Erreurs :</strong> <code>400</code> si aucun fichier n'est envoyé ou si l'extension n'est pas <code>.ifc</code> ; <code>413</code> si le fichier dépasse la taille limite.</span>
+      </p>
+    </article>
+
+    <!-- GET /api/jobs/:jobId -->
+    <article class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-6">
+      <p class="font-code-sm text-code-sm mb-3"><span class="api-verb api-verb-get">GET</span> <code class="text-on-surface">/api/jobs/:jobId</code></p>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-4">
+        <span class="en-text" lang="en">Reports where the job stands. <code>status</code> is one of <code>queued</code>, <code>converting</code>, <code>complete</code> or <code>error</code>. <code>downloadUrl</code> is <code>null</code> until the job completes.</span><span class="fr-text" lang="fr">Indique où en est le job. <code>status</code> vaut <code>queued</code>, <code>converting</code>, <code>complete</code> ou <code>error</code>. <code>downloadUrl</code> reste <code>null</code> jusqu'à la fin.</span>
+      </p>
+      <pre class="api-code"><code>{
+  "id": "7c1f8e2a-…",
+  "status": "complete",
+  "originalName": "model.ifc",
+  "error": null,
+  "downloadUrl": "/api/jobs/7c1f8e2a-…/download"
+}</code></pre>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-4">
+        <span class="en-text" lang="en"><strong>Errors:</strong> <code>404</code> when the job is unknown — see the note on restarts below.</span><span class="fr-text" lang="fr"><strong>Erreurs :</strong> <code>404</code> si le job est inconnu — voir la note sur les redémarrages plus bas.</span>
+      </p>
+    </article>
+
+    <!-- GET download -->
+    <article class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 mb-6">
+      <p class="font-code-sm text-code-sm mb-3"><span class="api-verb api-verb-get">GET</span> <code class="text-on-surface">/api/jobs/:jobId/download</code></p>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-4">
+        <span class="en-text" lang="en">Returns the <code>.xkt</code> as an attachment, named after the file you uploaded.</span><span class="fr-text" lang="fr">Renvoie le <code>.xkt</code> en pièce jointe, nommé d'après le fichier envoyé.</span>
+      </p>
+      <p class="font-body-md text-body-md text-on-surface-variant">
+        <span class="en-text" lang="en"><strong>Errors:</strong> <code>404</code> if the job is unknown; <code>409</code> if it has not finished yet.</span><span class="fr-text" lang="fr"><strong>Erreurs :</strong> <code>404</code> si le job est inconnu ; <code>409</code> s'il n'est pas encore terminé.</span>
+      </p>
+    </article>
+
+    <!-- GET health -->
+    <article class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+      <p class="font-code-sm text-code-sm mb-3"><span class="api-verb api-verb-get">GET</span> <code class="text-on-surface">/api/health</code></p>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-4">
+        <span class="en-text" lang="en">Liveness check. Useful to wake the server before uploading — see below.</span><span class="fr-text" lang="fr">Test de vie. Utile pour réveiller le serveur avant un envoi — voir plus bas.</span>
+      </p>
+      <pre class="api-code"><code>{ "ok": true, "service": "iconvex-backend" }</code></pre>
+    </article>
+  </section>
+
+  <!-- Browser example -->
+  <section class="mb-12">
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-3">
+      <span class="en-text" lang="en">From JavaScript</span><span class="fr-text" lang="fr">Depuis JavaScript</span>
+    </h2>
+    <pre class="api-code"><code>const body = new FormData();
+body.append('file', ifcFile);
+
+const { jobId } = await fetch(`${BASE}/api/convert`, { method: 'POST', body })
+  .then((r) => r.json());
+
+let job;
+do {
+  await new Promise((r) => setTimeout(r, 1500));
+  job = await fetch(`${BASE}/api/jobs/${jobId}`).then((r) => r.json());
+} while (job.status === 'queued' || job.status === 'converting');
+
+if (job.status === 'complete') window.location = `${BASE}${job.downloadUrl}`;</code></pre>
+  </section>
+
+  <!-- Limits — the honest part -->
+  <section class="mb-12">
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-3">
+      <span class="en-text" lang="en">Limits worth knowing before you build on this</span><span class="fr-text" lang="fr">Limites à connaître avant de construire dessus</span>
+    </h2>
+    <ul class="list-disc pl-6 space-y-3 font-body-md text-body-md text-on-surface-variant">
+      <li><span class="en-text" lang="en"><strong>Calling from a browser on another domain will be blocked.</strong> CORS only allows the IConveX site itself. Server-side calls — curl, Node, any backend — are not subject to CORS and work from anywhere.</span><span class="fr-text" lang="fr"><strong>Un appel depuis un navigateur sur un autre domaine sera bloqué.</strong> CORS n'autorise que le site IConveX lui-même. Les appels côté serveur — curl, Node, n'importe quel backend — ne sont pas soumis à CORS et fonctionnent depuis partout.</span></li>
+      <li><span class="en-text" lang="en"><strong>The first call after a quiet spell can take 50 seconds or more.</strong> The server runs on a free instance that sleeps when idle. Call <code>/api/health</code> first to wake it.</span><span class="fr-text" lang="fr"><strong>Le premier appel après une période d'inactivité peut prendre 50 secondes ou plus.</strong> Le serveur tourne sur une instance gratuite qui s'endort. Appelez <code>/api/health</code> d'abord pour le réveiller.</span></li>
+      <li><span class="en-text" lang="en"><strong>Conversion is not fast.</strong> The instance has a fraction of a CPU; a few megabytes of IFC can take minutes. Poll patiently rather than timing out early.</span><span class="fr-text" lang="fr"><strong>La conversion n'est pas rapide.</strong> L'instance dispose d'une fraction de CPU ; quelques mégaoctets d'IFC peuvent prendre plusieurs minutes. Interrogez patiemment plutôt que d'abandonner trop tôt.</span></li>
+      <li><span class="en-text" lang="en"><strong>Jobs do not survive a restart.</strong> The queue is held in memory, so a redeploy or a crash turns a job id into a <code>404</code>. Treat that as "start again", not as a transient error.</span><span class="fr-text" lang="fr"><strong>Les jobs ne survivent pas à un redémarrage.</strong> La file est en mémoire : un redéploiement ou un plantage transforme un identifiant en <code>404</code>. Traitez ça comme « recommencer », pas comme une erreur passagère.</span></li>
+      <li><span class="en-text" lang="en"><strong>Only <code>.ifc</code> files are accepted</strong>, and finished files are deleted automatically about an hour after conversion. Download promptly.</span><span class="fr-text" lang="fr"><strong>Seuls les fichiers <code>.ifc</code> sont acceptés</strong>, et les fichiers produits sont supprimés automatiquement environ une heure après la conversion. Téléchargez sans tarder.</span></li>
+      <li><span class="en-text" lang="en"><strong>There is no authentication and no rate limiting.</strong> This is a free, shared, best-effort service — do not build anything you depend on without running your own instance.</span><span class="fr-text" lang="fr"><strong>Il n'y a ni authentification ni limitation de débit.</strong> C'est un service gratuit, partagé et sans garantie — ne construisez rien de critique dessus sans héberger votre propre instance.</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-3">
+      <span class="en-text" lang="en">Run your own</span><span class="fr-text" lang="fr">Héberger la vôtre</span>
+    </h2>
+    <p class="font-body-md text-body-md text-on-surface-variant">
+      <span class="en-text" lang="en">Everything is MIT licensed. The backend is an Express app you can deploy anywhere that runs Node — see the </span><span class="fr-text" lang="fr">Tout est sous licence MIT. Le backend est une application Express déployable partout où tourne Node — voir le </span><a class="text-primary hover:underline" href="https://github.com/david15tonon/IConveX" target="_blank" rel="noopener">repository</a>.
+    </p>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full py-12 px-margin mt-24 flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto">
+  <div class="font-label-md text-label-md text-on-surface-variant mb-4 md:mb-0" id="footer-copy">
+    © IConveX. Free and open source — BIM automation.
+  </div>
+  <div class="flex gap-6">
+    <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="https://github.com/xeokit/xeokit-convert" target="_blank" rel="noopener">xeokit-convert</a>
+    <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100" href="#" id="footer-github-link" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/api-page.js"></script>
+</body>
+</html>

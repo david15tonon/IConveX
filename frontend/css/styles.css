@@ -113,3 +113,57 @@ input:focus-visible {
   font-variant-numeric: tabular-nums;
   cursor: pointer;
 }
+
+/* ---------------------------------------------------------------------------
+   API reference page
+--------------------------------------------------------------------------- */
+
+.api-code {
+  background: #131d25;
+  color: #e6edf3;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-family: "Geist", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  /* Long URLs and job ids must not stretch the page on a phone. */
+  white-space: pre;
+}
+
+.api-code code {
+  font: inherit;
+  color: inherit;
+  background: none;
+}
+
+.api-verb {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  margin-right: 0.5rem;
+}
+
+.api-verb-get {
+  background: #ecf4ff;
+  color: #004ac6;
+}
+
+.api-verb-post {
+  background: #e2f4e7;
+  color: #007e37;
+}
+
+/* Inline code inside prose, distinct from the dark blocks above. */
+main p code,
+main li code {
+  background: #ecf4ff;
+  color: #004ac6;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-family: "Geist", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
