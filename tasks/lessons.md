@@ -76,3 +76,13 @@ dispense pas de corriger la variable en place — et inversement.
 qui passe ne prouve rien sur un `POST` preflighté — vérifier avec
 `curl -X OPTIONS -H "Origin: ..." -H "Access-Control-Request-Method: POST" -D-`
 et confirmer la **présence** de l'en-tête, avec un contrôle négatif.
+
+**[2026-09-11] | « No active services » dans un dashboard ne prouve pas qu'un service est arrêté.**
+La carte du projet Render affichait « No active services » et j'ai d'abord écrit que
+ça changeait le diagnostic. En fait le service tournait : `GET /api/health`
+renvoyait `{"ok":true,"service":"iconvex-backend"}`. La carte décrivait un
+*regroupement* vide, pas l'état du service — qui était simplement non groupé.
+**Règle :** l'état d'un service se lit en l'interrogeant, pas dans une vue
+d'inventaire. Avant de réviser un diagnostic sur la foi d'une capture d'écran,
+envoyer une requête. Et ne pas confondre couche de présentation et réalité — même
+famille d'erreur que « modifier render.yaml ne change pas le service qui tourne ».

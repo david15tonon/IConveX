@@ -39,17 +39,18 @@ tourner en serverless (voir `tasks/lessons.md`, leçon 4).
 
 ## À faire
 
-- [ ] **Vercel → Settings → General** : `Root Directory` = `frontend`, et
-      supprimer l'override `Build Command` (`npm start`).
-      Non scriptable : `vercel.json` ne peut pas définir le Root Directory.
-- [ ] **Render → Environment** : mettre `CORS_ORIGIN=https://iconvex.vercel.app`
+- [x] **Vercel → Settings → General** : `Root Directory` = `frontend`, override
+      `Build Command` supprimé. Vérifié : `https://iconvex.vercel.app` sert bien
+      la page et la police Geist corrigée.
+- [ ] **Render → `Ungrouped Services` → `iconvex1` → Environment** : mettre
+      `CORS_ORIGIN=https://iconvex.vercel.app`
       (sans slash final), sauvegarder, laisser le service redémarrer.
       **C'est la seule action qui débloque l'upload dès maintenant** : le service
       lit ses variables depuis le dashboard, pas depuis `render.yaml`.
 - [ ] Les URLs de Preview Vercel (`iconvex-git-*.vercel.app`) resteront bloquées
       par CORS — les ajouter à `CORS_ORIGIN` si on veut tester en preview.
-- [ ] Pousser `fix/vercel-deployment` et la fusionner dans `main`
-      (Vercel et Render déploient depuis `main` — rien ne change en prod avant).
+- [x] `fix/vercel-deployment` fusionnée dans `main` (`f356b8a`). La PR #1 n'avait
+      embarqué que les 2 premiers commits ; les 3 suivants ont été poussés ensuite.
 - [ ] **Décision** : `MAX_UPLOAD_MB=200` fait sauter l'instance gratuite Render
       (512 Mo) pendant `convert2xkt`. Baisser la limite ou passer à une
       instance payante. Signalé en commentaire dans `render.yaml`.
