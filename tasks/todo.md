@@ -42,8 +42,16 @@ tourner en serverless (voir `tasks/lessons.md`, leçon 4).
 - [x] **Vercel → Settings → General** : `Root Directory` = `frontend`, override
       `Build Command` supprimé. Vérifié : `https://iconvex.vercel.app` sert bien
       la page et la police Geist corrigée.
-- [ ] **Render → `Ungrouped Services` → `iconvex1` → Environment** : mettre
-      `CORS_ORIGIN=https://iconvex.vercel.app`
+- [ ] **Redéployer le backend sur le compte Render actuel.** `iconvex1.onrender.com`
+      appartient à un ancien compte devenu inaccessible : impossible d'y changer
+      `CORS_ORIGIN`. Il tourne encore, mais on ne peut plus rien y faire.
+      Voie : Render → New → Blueprint → dépôt `david15tonon/IConveX` → lit
+      `render.yaml` (qui porte déjà le bon `CORS_ORIGIN`, donc pas d'étape dashboard
+      cette fois). Hostname attendu : `iconvex-backend.onrender.com` (vérifié libre
+      le 2026-09-11 via `x-render-routing: no-server`).
+- [ ] Confirmer l'URL réelle après déploiement et l'aligner dans
+      `frontend/js/config.js:8` si Render en assigne une autre.
+- [ ] ~~Render → Environment → `CORS_ORIGIN`~~ — caduc : plus d'accès au compte
       (sans slash final), sauvegarder, laisser le service redémarrer.
       **C'est la seule action qui débloque l'upload dès maintenant** : le service
       lit ses variables depuis le dashboard, pas depuis `render.yaml`.
