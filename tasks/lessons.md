@@ -86,3 +86,15 @@ renvoyait `{"ok":true,"service":"iconvex-backend"}`. La carte décrivait un
 d'inventaire. Avant de réviser un diagnostic sur la foi d'une capture d'écran,
 envoyer une requête. Et ne pas confondre couche de présentation et réalité — même
 famille d'erreur que « modifier render.yaml ne change pas le service qui tourne ».
+
+**[2026-09-11] | « Erreur CORS » dans le navigateur ne veut pas dire « problème de CORS ».**
+Le frontend affichait « No 'Access-Control-Allow-Origin' header is present » en
+boucle. CORS était parfaitement configuré : le serveur était simplement muet
+(boucle d'événements bloquée par `convert2xkt`), et le proxy Render répondait
+`502` à sa place — une réponse d'infrastructure qui, elle, ne porte aucun
+en-tête CORS. J'ai failli rechercher un problème d'origine pour la troisième fois.
+**Règle :** un message CORS décrit l'en-tête manquant sur *la réponse reçue*, pas
+son émetteur. Toujours regarder le **code HTTP** d'abord : `502`/`503` avec un
+message CORS = le serveur applicatif n'a pas répondu, cherche côté serveur, pas
+côté origine. Le test qui tranche : sonder un endpoint trivial pendant
+l'opération lente et regarder le code retour.
