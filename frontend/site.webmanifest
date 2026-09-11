@@ -1,7 +1,7 @@
 {
   "name": "IConveX — IFC to XKT converter",
   "short_name": "IConveX",
-  "description": "Convert IFC BIM models to the xeokit XKT format in seconds.",
+  "description": "Convert IFC BIM models to the xeokit XKT format from your browser.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
