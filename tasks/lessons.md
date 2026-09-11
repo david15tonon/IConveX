@@ -98,3 +98,15 @@ son émetteur. Toujours regarder le **code HTTP** d'abord : `502`/`503` avec un
 message CORS = le serveur applicatif n'a pas répondu, cherche côté serveur, pas
 côté origine. Le test qui tranche : sonder un endpoint trivial pendant
 l'opération lente et regarder le code retour.
+
+**[2026-09-11] | J'ai validé un correctif en mesurant la mauvaise instance.**
+Juste après le push, j'ai lancé une conversion puis sondé `/api/health` : 30
+réponses à 200, j'ai conclu que le correctif marchait. Faux. Le `POST` était
+parti sur l'ancienne instance pendant le redéploiement, et mes sondes
+interrogeaient la nouvelle, qui ne convertissait rien. Un serveur au repos répond
+200 — je mesurais le vide. Le signe qui aurait dû m'alerter immédiatement :
+le job était « Job not found » alors que la santé était parfaite.
+**Règle :** ne jamais mesurer pendant un déploiement. Et intégrer au test un
+**invariant qui prouve qu'on parle à la même instance** — ici, exiger que le job
+reste trouvable à chaque sondage. Un test vert dont on ne peut pas prouver qu'il
+a observé la bonne cible ne vaut pas mieux qu'un test non lancé.
