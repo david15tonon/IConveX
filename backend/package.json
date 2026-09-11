@@ -2,6 +2,15 @@
   "name": "iconvex-backend",
   "version": "1.0.0",
   "description": "IConveX backend API — converts IFC (BIM) files to XKT using @xeokit/xeokit-convert",
+  "author": "David Tonon <david15tonon@gmail.com> (https://github.com/david15tonon)",
+  "contributors": [
+    "HOUEGNISSODE Ernesto <ernestopourdieu@gmail.com> (https://github.com/pourdieu123)"
+  ],
+  "homepage": "https://iconvex.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/david15tonon/IConveX.git"
+  },
   "license": "MIT",
   "type": "module",
   "main": "server.js",
